@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>가격 계산기 임베드</title>
+  <title>adder for embedding</title>
   <style>
     :root {
       --bg: #ffffff;
@@ -25,6 +25,7 @@
     .total { margin-top: 18px; padding: 16px; background: #fff; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; }
     .total .title { color: var(--muted); font-size: 14px; }
     .total .amount { font-size: 22px; font-weight: 800; letter-spacing: .2px; }
+    .credit { margin-top: 6px; text-align: right; font-size: 12px; color: var(--muted); }
   </style>
 </head>
 <body>
@@ -81,6 +82,8 @@
       <div class="title">총금액</div>
       <output id="totalAmount">0원</output>
     </div>
+
+    <div class="credit">by swk</div>
   </div>
 
   <script>
