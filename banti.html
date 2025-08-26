@@ -14,13 +14,14 @@
     }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Pretendard,Helvetica,Arial,sans-serif; background: var(--bg); color: var(--text); }
-    .widget { width: 100%; max-width: 480px; margin: 24px auto; padding: 20px; background: var(--card); border-radius: var(--radius); box-shadow: 0 6px 24px rgba(0,0,0,.08); }
+    .widget { width: 100%; max-width: 560px; margin: 24px auto; padding: 20px; background: var(--card); border-radius: var(--radius); box-shadow: 0 6px 24px rgba(0,0,0,.08); }
     .row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed #e5e7eb; }
     .row:last-of-type { border-bottom: 0; }
     .label { font-weight: 600; }
     .hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
-    .toggle { cursor: pointer; font-size: 16px; font-weight: bold; padding: 6px 14px; border-radius: 12px; border: 1px solid #d1d5db; background: #fff; transition: 0.2s; }
-    .toggle.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .option-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .option { cursor: pointer; font-size: 14px; padding: 6px 14px; border-radius: 12px; border: 1px solid #d1d5db; background: #fff; transition: 0.2s; }
+    .option.active { background: #2563eb; color: #fff; border-color: #2563eb; }
     .total { margin-top: 18px; padding: 16px; background: #fff; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; }
     .total .title { color: var(--muted); font-size: 14px; }
     .total .amount { font-size: 22px; font-weight: 800; letter-spacing: .2px; }
@@ -29,14 +30,17 @@
 <body>
   <div class="widget" id="price-calculator">
     <h2 style="margin:0 0 8px 0; font-size: 18px;">가격 계산기</h2>
-    <div class="hint">기본금액은 12,000원입니다. 항목 클릭 시 O/X가 전환됩니다.</div>
+    <div class="hint">상의와 하의를 선택하고, 이니셜/번호 사용 여부를 선택해주세요.</div>
 
     <div class="row">
       <div>
         <div class="label">이니셜 사용</div>
         <div class="hint">사용 시 +2,000</div>
       </div>
-      <button class="toggle" data-type="initial">X</button>
+      <div class="option-group" data-type="initial">
+        <button class="option" data-type="initial" data-price="0">미사용</button>
+        <button class="option" data-type="initial" data-price="2000">사용</button>
+      </div>
     </div>
 
     <div class="row">
@@ -44,55 +48,66 @@
         <div class="label">번호 사용</div>
         <div class="hint">사용 시 +2,000</div>
       </div>
-      <button class="toggle" data-type="number">X</button>
+      <div class="option-group" data-type="number">
+        <button class="option" data-type="number" data-price="0">미사용</button>
+        <button class="option" data-type="number" data-price="2000">사용</button>
+      </div>
     </div>
 
     <div class="row">
       <div>
-        <div class="label">바지 추가</div>
-        <div class="hint">추가 시 +7,000</div>
+        <div class="label">상의</div>
+        <div class="hint">긴팔 13,000원 / 반팔 12,000원 중 택 1</div>
       </div>
-      <button class="toggle" data-type="pants">X</button>
+      <div class="option-group" data-type="top">
+        <button class="option" data-type="top" data-price="13000">긴팔</button>
+        <button class="option" data-type="top" data-price="12000">반팔</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <div class="label">하의</div>
+        <div class="hint">반바지 7,000원 / 긴바지 9,000원 / 선택안함 0원</div>
+      </div>
+      <div class="option-group" data-type="bottom">
+        <button class="option" data-type="bottom" data-price="7000">반바지</button>
+        <button class="option" data-type="bottom" data-price="9000">긴바지</button>
+        <button class="option" data-type="bottom" data-price="0">선택안함</button>
+      </div>
     </div>
 
     <div class="total">
       <div class="title">총금액</div>
-      <output id="totalAmount">12,000원</output>
+      <output id="totalAmount">0원</output>
     </div>
   </div>
 
   <script>
     (function(){
       const KRW = new Intl.NumberFormat('ko-KR');
-      const BASE = 12000;
-      const ADD_INITIAL = 2000;
-      const ADD_NUMBER  = 2000;
-      const ADD_PANTS   = 7000;
-
-      const toggles = document.querySelectorAll('.toggle');
       const totalOut = document.getElementById('totalAmount');
+      const options = document.querySelectorAll('.option');
 
       function recalc(){
-        let total = BASE;
-        toggles.forEach(btn => {
-          if (btn.textContent === 'O') {
-            if (btn.dataset.type === 'initial') total += ADD_INITIAL;
-            if (btn.dataset.type === 'number')  total += ADD_NUMBER;
-            if (btn.dataset.type === 'pants')   total += ADD_PANTS;
+        let total = 0;
+        const groups = {};
+        options.forEach(btn => {
+          if(btn.classList.contains('active')){
+            const type = btn.dataset.type;
+            groups[type] = parseInt(btn.dataset.price);
           }
         });
+        for(const k in groups){
+          total += groups[k];
+        }
         totalOut.textContent = KRW.format(total) + '원';
       }
 
-      toggles.forEach(btn => {
+      options.forEach(btn => {
         btn.addEventListener('click', () => {
-          if (btn.textContent === 'X') {
-            btn.textContent = 'O';
-            btn.classList.add('active');
-          } else {
-            btn.textContent = 'X';
-            btn.classList.remove('active');
-          }
+          document.querySelectorAll(`.option[data-type="${btn.dataset.type}"]`).forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
           recalc();
         });
       });
